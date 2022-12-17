@@ -1,0 +1,73 @@
+const express = require("express");
+const mongoose = require('mongoose');
+const bp = require('body-parser')
+const cors = require("cors");
+
+const app = express();
+
+app.use(bp.json())
+app.use(bp.urlencoded({ extended: true }))
+
+var corsOptions = {
+  origin: "http://127.0.0.1:5173/"
+};
+
+app.use(cors());
+
+// mongodb connection
+mongoose.set('strictQuery', false);
+mongoose.connect(`mongodb+srv://anuj:anujpass@cluster0.wgqqpdj.mongodb.net/?retryWrites=true&w=majority`).then(console.log("Connected to database")).catch(err => console.log(err));
+
+// mongo schema
+const userSchema = new mongoose.Schema({
+    fullName: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
+    batch: {
+      type: String,
+      required: true,
+    },
+    age: {
+      type: Number,
+      required: true,
+    },
+  });
+const User = mongoose.model("USER", userSchema);
+
+app.get( "/",(req, res) => {
+    res.json({ message: "Welcome to backend." });
+})
+
+app.post("/save", (req, res) => {
+    const { fullName, email, batch, age } = req.body.data;
+    const user = new User({
+        fullName,
+        email,
+        batch,
+        age
+      });
+    
+      user
+        .save()
+        .then(() => {
+            console.log("user registerd successfully!");
+            return res
+            .status(201)
+            .json({ message: "user registerd successfully!", status: 201 });
+        })
+        .catch((error) => {
+            console.log("failed to save in mongo"+error);
+          return res.status(500).json({ error: "Failed to save details" });
+        });
+})
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(`${PORT}`, () => {
+  console.log("Server started " + `localhost:${PORT}`);
+});
