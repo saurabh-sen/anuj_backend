@@ -1,8 +1,10 @@
 const express = require("express");
 const mongoose = require('mongoose');
 const bp = require('body-parser')
+const dotenv = require("dotenv");
 const cors = require("cors");
 
+dotenv.config({ path: "./config.env" });
 const app = express();
 
 app.use(bp.json())
@@ -16,7 +18,7 @@ app.use(cors());
 
 // mongodb connection
 mongoose.set('strictQuery', false);
-mongoose.connect(`mongodb+srv://anuj:anujpass@cluster0.wgqqpdj.mongodb.net/?retryWrites=true&w=majority`).then(console.log("Connected to database")).catch(err => console.log(err));
+mongoose.connect(process.env.MONGO_URI).then(console.log("Connected to database")).catch(err => console.log(err));
 
 // mongo schema
 const userSchema = new mongoose.Schema({
